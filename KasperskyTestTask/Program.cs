@@ -1,14 +1,42 @@
 ﻿namespace KasperskyTestTask
 {
+    #region Usings
+
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
+    #endregion
+
     public static class Program
     {
-        static void Main(string[] args)
+        /// <summary>
+        ///     Метод для вывода всех пары чисел, которые в сумме равны заданному числу
+        /// </summary>
+        /// <param name="numbers">Массив чисел</param>
+        /// <param name="sum">Заданная сумма</param>
+        /// <returns></returns>
+        private static List<Pair> GetPairs(List<int> numbers, int sum)
         {
+            var pairs = new List<Pair>();
+            numbers.Sort();
+            foreach (var number in numbers)
+            {
+                var secondNumber = sum - number;
+                if (numbers.Any(n => n == secondNumber))
+                {
+                    pairs.Add(new Pair(number, secondNumber));
+                }
+            }
+
+            return pairs;
+        }
+
+        private static void Main(string[] args)
+        {
+            Console.WriteLine("1-задание");
             var customQueue = new CustomQueue<int>();
 
             Task.Factory.StartNew(() => customQueue.Push(5));
@@ -21,9 +49,22 @@
             Console.ReadKey();
             Task.Factory.StartNew(() => customQueue.Push(7));
             Console.ReadKey();
+
+            Console.WriteLine("2-задание");
+            var numbers = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            var pairs = GetPairs(numbers, 10);
+            foreach (var pair in pairs)
+            {
+                Console.WriteLine($"{pair.First}, {pair.Second}");
+            }
+
+            Console.ReadKey();
         }
     }
 
+    /// <summary>
+    ///     Пользовательская очередь
+    /// </summary>
     public class CustomQueue<T>
     {
         private readonly Queue<T> queue;
@@ -36,6 +77,9 @@
             queueLock = new object();
         }
 
+        /// <summary>
+        ///     Удаляет и возвращает объект, находящийся в начале очереди
+        /// </summary>
         public T Pop()
         {
             lock (queueLock)
@@ -52,6 +96,9 @@
             }
         }
 
+        /// <summary>
+        ///     Добавляет элемент в очередь
+        /// </summary>
         public void Push(T item)
         {
             lock (queueLock)
@@ -61,5 +108,21 @@
                 Monitor.PulseAll(queueLock);
             }
         }
+    }
+
+    /// <summary>
+    ///     Пара чисел
+    /// </summary>
+    public class Pair
+    {
+        public Pair(int firstNumber, int secondNumber)
+        {
+            this.First = firstNumber;
+            this.Second = secondNumber;
+        }
+
+        public int First { get; set; }
+
+        public int Second { get; set; }
     }
 }
